@@ -1,10 +1,10 @@
 
-name = "leaps-worker"
+name = "leapspicker"
 main = "src/index.ts"
 compatibility_date = "2025-09-07"
 
 kv_namespaces = [
-  { binding = "CACHE", id = "00000000000000000000000000000000", preview_id = "11111111111111111111111111111111" }
+  { binding = "leapspicker", id = "00000000000000000000000000000000", preview_id = "11111111111111111111111111111111" }
 ]
 
 [triggers]
