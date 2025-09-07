@@ -1,5 +1,5 @@
 
-name = "leaps-worker"
+name = "leapspicker"
 main = "src/index.ts"
 compatibility_date = "2025-09-07"
 
