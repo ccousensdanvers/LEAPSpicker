@@ -158,7 +158,7 @@ export function renderHTML(data: any) {
         const num = td.textContent.replace(/[^-0-9.]/g,'');
         return parseFloat(num || '0');
       };
-      const copy = [...tbody.children];
+      const copy = Array.from(tbody.children);
       copy.sort((a,b)=> (getv(a) > getv(b) ? 1 : -1) * sortDir);
       copy.forEach(r=>tbody.appendChild(r));
     });
@@ -198,18 +198,24 @@ export function renderHTML(data: any) {
   const toCSV = () => {
     const hdr = ['symbol','score','price','rsi14','hv60','mdd1y','ivRank','status','rationale'];
     const lines = [hdr.join(',')];
-    ${/* build from the server-rendered data safely */''}
-    ${/* we’ll scrape the table for simplicity */''}
-    $$('tbody tr', table).forEach(tr => {
-      const tds = $$('td', tr).map(td => td.innerText.replace(/\\s+/g,' ').trim());
-      if (tds.length) {
-        const [symbol, score, rsi, hv, mdd, ivr, status, rationale] = tds;
-        const priceMatch = symbol.match(/\\$(\\d+[\\d.,]*)/);
-        const sym = symbol.split('\\n')[0].trim().split(' ')[0];
-        const price = priceMatch ? priceMatch[1] : '';
-        const row = [sym, score, price, rsi, hv, mdd, ivr, status, rationale.replace(/"/g,'""')];
-        lines.push(row.map(v => `"${v}"`).join(','));
-      }
+    Array.from(tbody.querySelectorAll('tr')).forEach(tr => {
+      const cells = Array.from(tr.querySelectorAll('td')).map(td =>
+        td.innerText.replace(/\\s+/g, ' ').trim()
+      );
+      if (!cells.length) return;
+      const symCell = cells[0] || '';
+      const score = cells[1] || '';
+      const rsi = cells[2] || '';
+      const hv = cells[3] || '';
+      const mdd = cells[4] || '';
+      const ivr = cells[5] || '';
+      const status = cells[6] || '';
+      const rationale = cells[7] || '';
+      const priceMatch = symCell.match(/\\$(\\d[\\d.,]*)/);
+      const symbol = symCell.split('\\n')[0].trim().split(' ')[0];
+      const price = priceMatch ? priceMatch[1] : '';
+      const row = [symbol, score, price, rsi, hv, mdd, ivr, status, rationale.replace(/"/g, '""')];
+      lines.push(row.map(function(v){ return '"' + v + '"'; }).join(','));
     });
     return lines.join('\\n');
   };
