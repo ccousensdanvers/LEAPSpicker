@@ -1,6 +1,8 @@
 
 export const config = {
+  // Fallback symbols if top volume lookup fails
   universe: ['AAPL', 'MSFT', 'NVDA', 'GOOGL', 'META'],
+  topVolumeCount: 20,
   weights: {
     trend: 30,
     momentum: 20,
