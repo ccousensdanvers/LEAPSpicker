@@ -7,6 +7,7 @@ import { explainWithGPT } from './providers/openaiExplain';
 import { saveRun, loadLastRun } from './store/runs';
 import { getQueryParamList } from './utils/dates';
 import { config } from './config';
+import { getTopVolumeSymbols } from './providers/marketData';
 
 export interface Env {
   leapspicker: KVNamespace;
@@ -29,7 +30,11 @@ export default {
       return new Response(renderHTML(last), { headers: { 'content-type': 'text/html' } });
     }
     if (url.pathname === '/run') {
-      const symbols = getQueryParamList(url, 'symbols') ?? config.universe;
+      let symbols = getQueryParamList(url, 'symbols');
+      if (!symbols || symbols.length === 0) {
+        symbols = await getTopVolumeSymbols(env, config.topVolumeCount);
+      }
+      if (!symbols || symbols.length === 0) symbols = config.universe;
       const equity = await runEquityScreen(env, symbols);
       const afterOptions = await optionsFeasibility(env, equity);
       const withExplainers = await explainWithGPT(env, afterOptions);
@@ -41,7 +46,8 @@ export default {
   },
 
   async scheduled(_event: ScheduledEvent, env: Env): Promise<void> {
-    const symbols = config.universe;
+    let symbols = await getTopVolumeSymbols(env, config.topVolumeCount);
+    if (!symbols || symbols.length === 0) symbols = config.universe;
     const equity = await runEquityScreen(env, symbols);
     const afterOptions = await optionsFeasibility(env, equity);
     const withExplainers = await explainWithGPT(env, afterOptions);

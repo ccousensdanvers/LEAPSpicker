@@ -2,8 +2,9 @@
 # LEAPS Screening Cloudflare Worker
 
 A Cloudflare Workers app that screens **LEAPS candidates** using equity OHLCV data (Alpha Vantage),
-optionally fundamentals (FMP), and a pluggable options provider. It computes indicators locally,
-scores candidates, and exposes JSON + HTML endpoints. It can run on a daily cron.
+optionally fundamentals (FMP), and a pluggable options provider. By default it monitors the
+top 20 highest-volume U.S. stocks via FMP, computes indicators locally, scores candidates, and
+exposes JSON + HTML endpoints. It can run on a daily cron.
 
 > For research/education only. Not investment advice.
 
@@ -34,7 +35,8 @@ wrangler secret put OPTIONS_API_KEY
 - `GET /picks` – HTML dashboard
 
 ## Configure
-Edit `src/config.ts` to change the universe, weights, and thresholds.
+Edit `src/config.ts` to change the fallback universe, number of top-volume symbols,
+weights, and thresholds.
 
 ## Notes
 - First-time runs will cache OHLCV in KV for 24h to respect Alpha Vantage limits.
