@@ -9,7 +9,7 @@ import { getQueryParamList } from './utils/dates';
 import { config } from './config';
 
 export interface Env {
-  leapspicker: KVNamespace;
+  CACHE: KVNamespace;
   ALPHA_VANTAGE_KEY?: string;
   FMP_KEY?: string;
   OPENAI_API_KEY?: string;
