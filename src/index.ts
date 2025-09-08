@@ -29,11 +29,15 @@ export default {
       return new Response(renderHTML(last), { headers: { 'content-type': 'text/html' } });
     }
     if (url.pathname === '/run') {
+      if (!env.ALPHA_VANTAGE_KEY) {
+        console.error('ALPHA_VANTAGE_KEY not set');
+        return new Response('Alpha Vantage key missing', { status: 500 });
+      }
       const symbols = getQueryParamList(url, 'symbols') ?? config.universe;
       const equity = await runEquityScreen(env, symbols);
-      const afterOptions = await optionsFeasibility(env, equity);
+      const afterOptions = await optionsFeasibility(env, equity.results);
       const withExplainers = await explainWithGPT(env, afterOptions);
-      const stamped = { ts: new Date().toISOString(), results: withExplainers };
+      const stamped = { ts: new Date().toISOString(), results: withExplainers, diagnostics: equity.diagnostics };
       await saveRun(env, stamped);
       return new Response(renderJSON(stamped), { headers: { 'content-type': 'application/json' } });
     }
@@ -41,11 +45,15 @@ export default {
   },
 
   async scheduled(_event: ScheduledEvent, env: Env): Promise<void> {
+    if (!env.ALPHA_VANTAGE_KEY) {
+      console.error('ALPHA_VANTAGE_KEY not set');
+      return;
+    }
     const symbols = config.universe;
     const equity = await runEquityScreen(env, symbols);
-    const afterOptions = await optionsFeasibility(env, equity);
+    const afterOptions = await optionsFeasibility(env, equity.results);
     const withExplainers = await explainWithGPT(env, afterOptions);
-    const stamped = { ts: new Date().toISOString(), results: withExplainers };
+    const stamped = { ts: new Date().toISOString(), results: withExplainers, diagnostics: equity.diagnostics };
     await saveRun(env, stamped);
   },
 };
