@@ -39,4 +39,5 @@ Edit `src/config.ts` to change the universe, weights, and thresholds.
 ## Notes
 - First-time runs will cache OHLCV in KV for 24h to respect Alpha Vantage limits.
 - Indicators are computed locally to minimize API calls.
+- Intraday prices use Alpha Vantage premium real-time data (`entitlement=realtime`) and are cached for 1 minute.
 - Options checks are stubbed with an interface; plug your provider later.

@@ -1,5 +1,10 @@
 
-import { getDailyAdjusted, extractCloses } from '../providers/alphaVantage';
+import {
+  getDailyAdjusted,
+  getIntradayRealtime,
+  extractCloses,
+  extractIntradayLatest,
+} from '../providers/alphaVantage';
 import { annualizedHV, maxDrawdown, momentum, rsi, sma } from '../metrics/indicators';
 import { getFundamentals, deriveQualityMetrics } from '../providers/fundamentals';
 import { scoreCandidate, EquityMetrics } from '../metrics/scoring';
@@ -12,7 +17,7 @@ export async function runEquityScreen(env: any, symbols: string[]) {
       const json = await getDailyAdjusted(env, symbol);
       const closes = extractCloses(json);
       if (closes.length < 220) continue;
-      const price = closes[closes.length - 1];
+      const dailyPrice = closes[closes.length - 1];
       const sma50 = sma(closes, 50)[closes.length - 1];
       const sma200Arr = sma(closes, 200);
       const sma200 = sma200Arr[closes.length - 1];
@@ -24,7 +29,7 @@ export async function runEquityScreen(env: any, symbols: string[]) {
       const mom12m2m = momentum(closes);
 
       // Baseline filters
-      if (!(price > sma200)) continue;
+      if (!(dailyPrice > sma200)) continue;
       if (!(sma200Slope > 0)) continue;
       if (!(rsi14 >= config.thresholds.rsiMin && rsi14 <= config.thresholds.rsiMax)) continue;
       if (!(mdd1y >= config.thresholds.maxDrawdown)) continue;
@@ -32,6 +37,9 @@ export async function runEquityScreen(env: any, symbols: string[]) {
       // Fundamentals (optional)
       const funda = await getFundamentals(env, symbol);
       const q = deriveQualityMetrics(funda);
+
+      const intraday = await getIntradayRealtime(env, symbol);
+      const price = extractIntradayLatest(intraday, '5min') ?? dailyPrice;
 
       const eq: EquityMetrics = {
         symbol, price, sma50, sma200, sma200Slope, rsi14,
