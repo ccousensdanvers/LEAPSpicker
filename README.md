@@ -20,7 +20,8 @@ wrangler dev
 
 Set secrets:
 ```bash
-wrangler secret put ALPHA_VANTAGE_KEY
+# One or more comma-separated Alpha Vantage keys for rotation
+wrangler secret put ALPHA_VANTAGE_KEYS
 # optional:
 wrangler secret put FMP_KEY
 wrangler secret put OPENAI_API_KEY
@@ -37,6 +38,7 @@ wrangler secret put OPTIONS_API_KEY
 Edit `src/config.ts` to change the universe, weights, and thresholds.
 
 ## Notes
-- First-time runs will cache OHLCV in KV for 24h to respect Alpha Vantage limits.
+- OHLCV responses are cached in memory and KV for 24h to respect Alpha Vantage limits.
+- Multiple Alpha Vantage API keys are rotated automatically.
 - Indicators are computed locally to minimize API calls.
 - Options checks are stubbed with an interface; plug your provider later.
