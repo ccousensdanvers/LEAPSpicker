@@ -29,7 +29,10 @@ export default {
       return new Response(renderHTML(last), { headers: { 'content-type': 'text/html' } });
     }
     if (url.pathname === '/run') {
-      const symbols = getQueryParamList(url, 'symbols') ?? config.universe;
+      const symbols =
+        url.searchParams.get('all') === '1'
+          ? config.universe
+          : getQueryParamList(url, 'symbols') ?? config.universe;
       const equity = await runEquityScreen(env, symbols);
       const afterOptions = await optionsFeasibility(env, equity);
       const withExplainers = await explainWithGPT(env, afterOptions);
