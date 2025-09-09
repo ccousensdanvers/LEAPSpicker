@@ -30,12 +30,22 @@ export default {
     }
     if (url.pathname === '/run') {
       const symbols = getQueryParamList(url, 'symbols') ?? config.universe;
+      const fullUniverse =
+        symbols.length === config.universe.length &&
+        symbols.every((s) => config.universe.includes(s));
       const equity = await runEquityScreen(env, symbols);
       const afterOptions = await optionsFeasibility(env, equity);
       const withExplainers = await explainWithGPT(env, afterOptions);
-      const stamped = { ts: new Date().toISOString(), results: withExplainers };
+      const stamped = {
+        ts: new Date().toISOString(),
+        symbols,
+        fullUniverse,
+        results: withExplainers,
+      };
       await saveRun(env, stamped);
-      return new Response(renderJSON(stamped), { headers: { 'content-type': 'application/json' } });
+      return new Response(renderJSON(stamped), {
+        headers: { 'content-type': 'application/json' },
+      });
     }
     return new Response('Not found', { status: 404 });
   },
@@ -45,7 +55,12 @@ export default {
     const equity = await runEquityScreen(env, symbols);
     const afterOptions = await optionsFeasibility(env, equity);
     const withExplainers = await explainWithGPT(env, afterOptions);
-    const stamped = { ts: new Date().toISOString(), results: withExplainers };
+    const stamped = {
+      ts: new Date().toISOString(),
+      symbols,
+      fullUniverse: true,
+      results: withExplainers,
+    };
     await saveRun(env, stamped);
   },
 };
