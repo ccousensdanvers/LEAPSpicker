@@ -4,7 +4,8 @@ import { getJSON, putJSON } from './kvCache';
 const LAST_RUN_KEY = 'runs:last';
 
 export async function saveRun(env: any, data: any) {
-  await putJSON(env.leapspicker, LAST_RUN_KEY, data, 7 * 24 * 60 * 60);
+  // store the latest run indefinitely so the dashboard always has data
+  await putJSON(env.leapspicker, LAST_RUN_KEY, data);
 }
 
 export async function loadLastRun(env: any) {
