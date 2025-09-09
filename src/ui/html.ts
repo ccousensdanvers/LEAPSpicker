@@ -10,7 +10,7 @@ export function renderHTML(data: any) {
       <tr>
         <td class="sym">
           <div class="symbox">
-            <div class="ticker">${escapeHTML(r.symbol ?? "—")}</div>
+            <div class="ticker">${escapeHTML(r.symbol ?? '—')}</div>
             <div class="sub">$${fmt(m.price)}</div>
           </div>
         </td>
@@ -22,12 +22,12 @@ export function renderHTML(data: any) {
         <td>${num(m.rsi14, 1)} ${badgeRSI(m.rsi14)}</td>
         <td>${pct(m.hv60)} ${badgeHV(m.hv60)}</td>
         <td>${pct(m.mdd1y)} ${badgeMDD(m.mdd1y)}</td>
-        <td>${r?.options?.ivRank ?? "—"}</td>
-        <td>${r.pass ? badge("PASS", "ok") : badge("WATCH", "warn")}</td>
-        <td class="rationale">${escapeHTML(r.rationale ?? "—")}</td>
+        <td>${r?.options?.ivRank ?? '—'}</td>
+        <td>${r.pass ? badge('PASS', 'ok') : badge('WATCH', 'warn')}</td>
+        <td class="rationale">${escapeHTML(r.rationale ?? '—')}</td>
       </tr>`;
     })
-    .join("\n");
+    .join('\n');
 
   return `<!doctype html>
 <html data-theme="light">
@@ -93,7 +93,7 @@ export function renderHTML(data: any) {
     <div class="hero">
       <div>
         <div class="title">LEAPS Candidates</div>
-        <div class="subtitle">Last run: ${data?.ts ?? "—"} • Click headers to sort • Search to filter</div>
+        <div class="subtitle">Last run: ${data?.ts ?? '—'} • Click headers to sort • Search to filter</div>
       </div>
       <div class="controls">
         <label class="pill">🔎 <input id="q" placeholder="Filter symbols & text…" /></label>
@@ -118,7 +118,10 @@ export function renderHTML(data: any) {
         </tr>
       </thead>
       <tbody>
-        ${rows || `<tr><td colspan="8" class="sub" style="padding:16px">No results yet. Hit <b>⚡ Run</b> or call <code>/run?symbols=AAPL,MSFT</code>.</td></tr>`}
+        ${
+          rows ||
+          `<tr><td colspan="8" class="sub" style="padding:16px">No results yet. Hit <b>⚡ Run</b> or call <code>/run?symbols=NVDA,AMD</code>.</td></tr>`
+        }
       </tbody>
     </table>
 
@@ -190,7 +193,12 @@ export function renderHTML(data: any) {
 
   // Run refresh (opens /run in a new tab to avoid blocking UI)
   refresh.addEventListener('click', () => {
-    const defaultSyms = '${(results.map(r=>r.symbol).slice(0,3).join(",") || "AAPL,MSFT,NVDA")}';
+    const defaultSyms = '${
+      results
+        .map((r) => r.symbol)
+        .slice(0, 3)
+        .join(',') || 'NVDA,AMD,TSLA'
+    }';
     window.open('/run?symbols=' + encodeURIComponent(defaultSyms), '_blank');
   });
 
@@ -226,7 +234,7 @@ export function renderHTML(data: any) {
     setTimeout(()=> copycsv.textContent = '📄 CSV', 1200);
   });
   copyjson.addEventListener('click', async () => {
-    const pre = ${JSON.stringify(JSON.stringify(data ?? { ts:null, results:[] }, null, 2))};
+    const pre = ${JSON.stringify(JSON.stringify(data ?? { ts: null, results: [] }, null, 2))};
     await navigator.clipboard.writeText(pre);
     copyjson.textContent = '✅ Copied JSON';
     setTimeout(()=> copyjson.textContent = '🧾 JSON', 1200);
@@ -239,33 +247,48 @@ export function renderHTML(data: any) {
 
 /* ---------- helpers ---------- */
 
-function badge(text: string, kind: "ok" | "warn" | "bad") {
-  const cls = kind === "ok" ? "b-ok" : kind === "warn" ? "b-warn" : "b-bad";
+function badge(text: string, kind: 'ok' | 'warn' | 'bad') {
+  const cls = kind === 'ok' ? 'b-ok' : kind === 'warn' ? 'b-warn' : 'b-bad';
   return `<span class="badge ${cls}">${text}</span>`;
 }
 function badgeRSI(v?: number) {
-  if (!isFiniteNum(v)) return "";
-  if (v < 35) return badge("OVERSOLD", "warn");
-  if (v > 70) return badge("OVERBOUGHT", "warn");
-  if (v >= 40 && v <= 65) return badge("IN BAND", "ok");
-  return "";
+  if (!isFiniteNum(v)) return '';
+  if (v < 35) return badge('OVERSOLD', 'warn');
+  if (v > 70) return badge('OVERBOUGHT', 'warn');
+  if (v >= 40 && v <= 65) return badge('IN BAND', 'ok');
+  return '';
 }
 function badgeHV(v?: number) {
-  if (!isFiniteNum(v)) return "";
-  if (v < 0.25) return badge("LOW VOL", "ok");
-  if (v > 0.60) return badge("HIGH VOL", "warn");
-  return "";
+  if (!isFiniteNum(v)) return '';
+  if (v < 0.25) return badge('LOW VOL', 'ok');
+  if (v > 0.6) return badge('HIGH VOL', 'warn');
+  return '';
 }
 function badgeMDD(v?: number) {
-  if (!isFiniteNum(v)) return "";
-  if (v > -0.15) return badge("SHALLOW DD", "ok");
-  if (v < -0.40) return badge("DEEP DD", "warn");
-  return "";
+  if (!isFiniteNum(v)) return '';
+  if (v > -0.15) return badge('SHALLOW DD', 'ok');
+  if (v < -0.4) return badge('DEEP DD', 'warn');
+  return '';
 }
 
-function isFiniteNum(n: any): n is number { return typeof n === "number" && Number.isFinite(n); }
-function clamp(n: number, lo: number, hi: number) { return Math.max(lo, Math.min(hi, n)); }
-function fmt(n: number | undefined) { return isFiniteNum(n) ? n.toFixed(2) : "—"; }
-function num(n: number | undefined, d=1) { return isFiniteNum(n) ? n.toFixed(d) : "—"; }
-function pct(n: number | undefined) { return isFiniteNum(n) ? (n*100).toFixed(1) + "%" : "—"; }
-function escapeHTML(s: string) { return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!)); }
+function isFiniteNum(n: any): n is number {
+  return typeof n === 'number' && Number.isFinite(n);
+}
+function clamp(n: number, lo: number, hi: number) {
+  return Math.max(lo, Math.min(hi, n));
+}
+function fmt(n: number | undefined) {
+  return isFiniteNum(n) ? n.toFixed(2) : '—';
+}
+function num(n: number | undefined, d = 1) {
+  return isFiniteNum(n) ? n.toFixed(d) : '—';
+}
+function pct(n: number | undefined) {
+  return isFiniteNum(n) ? (n * 100).toFixed(1) + '%' : '—';
+}
+function escapeHTML(s: string) {
+  return s.replace(
+    /[&<>"']/g,
+    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!,
+  );
+}
