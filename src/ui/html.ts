@@ -7,7 +7,7 @@ export function renderHTML(data: any) {
       const score = Number.isFinite(r.score) ? r.score : 0;
 
       return `
-      <tr>
+      <tr data-pass="${r.pass ? 1 : 0}">
         <td class="sym">
           <div class="symbox">
             <div class="ticker">${escapeHTML(r.symbol ?? "—")}</div>
@@ -73,6 +73,7 @@ export function renderHTML(data: any) {
     tbody td{padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:top}
     tbody tr{transition:transform .08s ease, background .15s}
     tbody tr:hover{background:rgba(124,58,237,.06);transform:scale(1.003)}
+    tbody tr[data-pass="0"]{opacity:.45}
     .sym .symbox{display:flex;flex-direction:column;gap:2px}
     .ticker{font-weight:800;font-size:14px;letter-spacing:.3px}
     .sub{color:var(--sub);font-size:12px}
