@@ -29,7 +29,7 @@ wrangler secret put OPTIONS_API_KEY
 
 ## Endpoints
 - `GET /` – health
-- `GET /run` – execute the full pipeline now, return JSON (pass ?symbols=AAPL,MSFT to override)
+- `GET /run?all=1` – execute the full pipeline for the configured universe (pass ?symbols=AAPL,MSFT to override)
 - `GET /picks.json` – return last saved results (from KV)
 - `GET /picks` – HTML dashboard
 
