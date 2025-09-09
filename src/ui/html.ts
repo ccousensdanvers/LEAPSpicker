@@ -1,3 +1,5 @@
+import { config } from '../config';
+
 export function renderHTML(data: any) {
   const results = (data?.results ?? []) as any[];
 
@@ -190,7 +192,7 @@ export function renderHTML(data: any) {
 
   // Run refresh (opens /run in a new tab to avoid blocking UI)
   refresh.addEventListener('click', () => {
-    const defaultSyms = '${(results.map(r=>r.symbol).slice(0,3).join(",") || "AAPL,MSFT,NVDA")}';
+    const defaultSyms = '${config.universe.join(",")}';
     window.open('/run?symbols=' + encodeURIComponent(defaultSyms), '_blank');
   });
 
