@@ -1,11 +1,9 @@
 
 export const config = {
-  universe: [
-  'NVDA','AMD','TSLA','AAPL','MSFT','GOOG','AMZN','META','PLTR','NEE',
+  universe: ['NVDA','AMD','TSLA','AAPL','MSFT','GOOG','AMZN','META','PLTR','NEE',
   'CRWD','V','PYPL','UNH','AVGO','DOCU','ORCL','NVCR','ARWR','ADBE',
   'PANW','NFLX','SNOW','SHOP','NET','ZS','MDB','SMCI','UBER','LYFT','COIN',
-  'MSTR']
-,
+  'MSTR'],
   weights: {
     trend: 30,
     momentum: 20,
