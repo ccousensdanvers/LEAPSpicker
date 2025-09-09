@@ -29,7 +29,8 @@ export default {
       return new Response(renderHTML(last), { headers: { 'content-type': 'text/html' } });
     }
     if (url.pathname === '/run') {
-      const symbols = getQueryParamList(url, 'symbols') ?? config.universe;
+      const explicit = getQueryParamList(url, 'symbols') ?? [];
+      const symbols = explicit.length ? explicit : config.universe; // no rotation
       const equity = await runEquityScreen(env, symbols);
       const afterOptions = await optionsFeasibility(env, equity);
       const withExplainers = await explainWithGPT(env, afterOptions);
