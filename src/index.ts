@@ -9,7 +9,7 @@ import { getQueryParamList } from './utils/dates';
 import { config } from './config';
 
 export interface Env {
-  leapspicker: KVNamespace;
+  leapspicker?: KVNamespace;
   ALPHA_VANTAGE_KEY?: string;
   FMP_KEY?: string;
   OPENAI_API_KEY?: string;
@@ -18,6 +18,10 @@ export interface Env {
 
 export default {
   async fetch(req: Request, env: Env): Promise<Response> {
+    if (!env.leapspicker) {
+      console.error('KV binding "leapspicker" is undefined');
+      return new Response('KV binding not configured', { status: 500 });
+    }
     const url = new URL(req.url);
     if (url.pathname === '/') return new Response('ok');
     if (url.pathname === '/picks.json') {
@@ -44,6 +48,10 @@ export default {
   },
 
   async scheduled(_event: ScheduledEvent, env: Env): Promise<void> {
+    if (!env.leapspicker) {
+      console.error('KV binding "leapspicker" is undefined');
+      return;
+    }
     const symbols = config.universe;
     const equity = await runEquityScreen(env, symbols);
     const afterOptions = await optionsFeasibility(env, equity);
