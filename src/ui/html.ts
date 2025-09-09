@@ -118,7 +118,7 @@ export function renderHTML(data: any) {
         </tr>
       </thead>
       <tbody>
-        ${rows || `<tr><td colspan="8" class="sub" style="padding:16px">No results yet. Hit <b>⚡ Run</b> or call <code>/run?symbols=AAPL,MSFT</code>.</td></tr>`}
+        ${rows || `<tr><td colspan="8" class="sub" style="padding:16px">No results yet. Hit <b>⚡ Run</b> or call <code>/run?all=1</code>.</td></tr>`}
       </tbody>
     </table>
 
@@ -190,8 +190,7 @@ export function renderHTML(data: any) {
 
   // Run refresh (opens /run in a new tab to avoid blocking UI)
   refresh.addEventListener('click', () => {
-    const defaultSyms = '${(results.map(r=>r.symbol).slice(0,3).join(",") || "AAPL,MSFT,NVDA")}';
-    window.open('/run?symbols=' + encodeURIComponent(defaultSyms), '_blank');
+    window.open('/run?all=1', '_blank');
   });
 
   // Copy CSV / JSON
