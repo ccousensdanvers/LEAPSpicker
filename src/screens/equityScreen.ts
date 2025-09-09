@@ -1,4 +1,3 @@
-
 import { getDailyAdjusted, extractCloses } from '../providers/alphaVantage';
 import { annualizedHV, maxDrawdown, momentum, rsi, sma } from '../metrics/indicators';
 import { getFundamentals, deriveQualityMetrics } from '../providers/fundamentals';
@@ -23,27 +22,41 @@ export async function runEquityScreen(env: any, symbols: string[]) {
       const mdd1y = maxDrawdown(closes, 252);
       const mom12m2m = momentum(closes);
 
-      // Baseline filters
-      if (!(price > sma200)) continue;
-      if (!(sma200Slope > 0)) continue;
-      if (!(rsi14 >= config.thresholds.rsiMin && rsi14 <= config.thresholds.rsiMax)) continue;
-      if (!(mdd1y >= config.thresholds.maxDrawdown)) continue;
-
-      // Fundamentals (optional)
-      const funda = await getFundamentals(env, symbol);
-      const q = deriveQualityMetrics(funda);
-
-      const eq: EquityMetrics = {
-        symbol, price, sma50, sma200, sma200Slope, rsi14,
-        hv60: hv ?? 0.4,
-        mdd1y, mom12m2m,
-        revCagr3y: q.revCagr3y,
-        fcfPositive: q.fcfPositive,
-        netDebtToEbitda: q.netDebtToEbitda,
-        marginTrendOk: q.marginTrendOk,
+      const gates = {
+        aboveSma200: price > sma200,
+        slopeUp: sma200Slope > 0,
+        rsiOk: rsi14 >= config.thresholds.rsiMin && rsi14 <= config.thresholds.rsiMax,
+        drawdownOk: mdd1y >= config.thresholds.maxDrawdown,
       };
+      const baselinePass = Object.values(gates).every(Boolean);
+
+      const baseEq: EquityMetrics = {
+        symbol,
+        price,
+        sma50,
+        sma200,
+        sma200Slope,
+        rsi14,
+        hv60: hv ?? 0.4,
+        mdd1y,
+        mom12m2m,
+      };
+
+      let eq = baseEq;
+      if (baselinePass) {
+        const funda = await getFundamentals(env, symbol);
+        const q = deriveQualityMetrics(funda);
+        eq = {
+          ...baseEq,
+          revCagr3y: q.revCagr3y,
+          fcfPositive: q.fcfPositive,
+          netDebtToEbitda: q.netDebtToEbitda,
+          marginTrendOk: q.marginTrendOk,
+        };
+      }
+
       const score = scoreCandidate(eq);
-      const pass = score >= config.thresholds.passScore;
+      const pass = baselinePass && score >= config.thresholds.passScore;
       out.push({ symbol, score, price, metrics: eq, pass });
     } catch (e) {
       // Skip symbol on errors
