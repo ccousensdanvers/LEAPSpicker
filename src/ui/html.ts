@@ -7,7 +7,7 @@ export function renderHTML(data: any) {
       const score = Number.isFinite(r.score) ? r.score : 0;
 
       return `
-      <tr>
+      <tr class="${r.pass ? '' : 'dim'}">
         <td class="sym">
           <div class="symbox">
             <div class="ticker">${escapeHTML(r.symbol ?? "—")}</div>
@@ -86,6 +86,7 @@ export function renderHTML(data: any) {
     .rationale{max-width:520px}
     .footer{margin:16px 0;color:var(--muted);font-size:12px}
     .hidden{display:none}
+    .dim{opacity:.45}
   </style>
 </head>
 <body>
