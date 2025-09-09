@@ -1,5 +1,7 @@
 export function renderHTML(data: any) {
   const results = (data?.results ?? []) as any[];
+  const symbols = (data?.symbols ?? []) as string[];
+  const fullUniverse = Boolean(data?.fullUniverse);
 
   const rows = results
     .map((r) => {
@@ -124,6 +126,8 @@ export function renderHTML(data: any) {
 
     <div class="meta">
       <span>Rows: <b id="rc">${results.length}</b></span>
+      <span>Symbols: <b>${symbols.join(', ') || '—'}</b></span>
+      <span>Universe: <b>${fullUniverse ? 'full' : 'partial'}</b></span>
       <span>Theme: <b id="th">light</b></span>
     </div>
     <div class="footer">Pro tip: tweak your universe and thresholds in <code>src/config.ts</code>.</div>
@@ -190,8 +194,7 @@ export function renderHTML(data: any) {
 
   // Run refresh (opens /run in a new tab to avoid blocking UI)
   refresh.addEventListener('click', () => {
-    const defaultSyms = '${(results.map(r=>r.symbol).slice(0,3).join(",") || "AAPL,MSFT,NVDA")}';
-    window.open('/run?symbols=' + encodeURIComponent(defaultSyms), '_blank');
+    window.open('/run', '_blank');
   });
 
   // Copy CSV / JSON
