@@ -1,4 +1,3 @@
-
 import { runEquityScreen } from './screens/equityScreen';
 import { optionsFeasibility } from './screens/optionsFilter';
 import { renderHTML } from './ui/html';
@@ -11,6 +10,7 @@ import { config } from './config';
 export interface Env {
   leapspicker: KVNamespace;
   ALPHA_VANTAGE_KEY?: string;
+  ALPHA_VANTAGE_PREMIUM?: string;
   FMP_KEY?: string;
   OPENAI_API_KEY?: string;
   OPTIONS_API_KEY?: string;

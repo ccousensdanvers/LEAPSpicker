@@ -7,6 +7,10 @@ kv_namespaces = [
   { binding = "leapspicker", id = "41a32fe24b79414f933dfa1be849cdb0", preview_id = "11111111111111111111111111111111" }
 ]
 
+[vars]
+# set to "1" if using a premium Alpha Vantage key
+ALPHA_VANTAGE_PREMIUM = "0"
+
 [triggers]
 # After US market close (22:30 UTC is ~6:30pm ET during DST)
 crons = ["30 22 * * 1-5"]
