@@ -1,5 +1,4 @@
-
-import { getDailyAdjusted, extractCloses } from '../providers/alphaVantage';
+import { getDaily, extractCloses } from '../providers/alphaVantage';
 import { annualizedHV, maxDrawdown, momentum, rsi, sma } from '../metrics/indicators';
 import { getFundamentals, deriveQualityMetrics } from '../providers/fundamentals';
 import { scoreCandidate, EquityMetrics } from '../metrics/scoring';
@@ -9,7 +8,7 @@ export async function runEquityScreen(env: any, symbols: string[]) {
   const out: any[] = [];
   for (const symbol of symbols) {
     try {
-      const json = await getDailyAdjusted(env, symbol);
+      const json = await getDaily(env, symbol);
       const closes = extractCloses(json);
       if (closes.length < 220) continue;
       const price = closes[closes.length - 1];
