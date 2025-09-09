@@ -5,7 +5,7 @@ import { renderHTML } from './ui/html';
 import { renderJSON } from './ui/json';
 import { explainWithGPT } from './providers/openaiExplain';
 import { saveRun, loadLastRun } from './store/runs';
-import { getQueryParamList } from './utils/dates';
+import { parseSymbols } from './utils/symbols';
 import { config } from './config';
 
 export interface Env {
@@ -29,11 +29,21 @@ export default {
       return new Response(renderHTML(last), { headers: { 'content-type': 'text/html' } });
     }
     if (url.pathname === '/run') {
-      const symbols = getQueryParamList(url, 'symbols') ?? config.universe;
+      const explicit = parseSymbols(url);
+      const runAll = url.searchParams.get('all') === '1';
+
+      const symbols = explicit.length ? explicit : runAll ? config.universe : config.universe;
+
+      console.log('RUN symbols count:', symbols.length, symbols.slice(0, 20));
       const equity = await runEquityScreen(env, symbols);
       const afterOptions = await optionsFeasibility(env, equity);
       const withExplainers = await explainWithGPT(env, afterOptions);
-      const stamped = { ts: new Date().toISOString(), results: withExplainers };
+      const stamped = {
+        ts: new Date().toISOString(),
+        results: withExplainers,
+        universe: symbols,
+        params: { all: runAll, explicit: explicit.length },
+      };
       await saveRun(env, stamped);
       return new Response(renderJSON(stamped), { headers: { 'content-type': 'application/json' } });
     }
