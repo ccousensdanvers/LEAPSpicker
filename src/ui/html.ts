@@ -190,8 +190,7 @@ export function renderHTML(data: any) {
 
   // Run refresh (opens /run in a new tab to avoid blocking UI)
   refresh.addEventListener('click', () => {
-    const defaultSyms = '${(results.map(r=>r.symbol).slice(0,3).join(",") || "AAPL,MSFT,NVDA")}';
-    window.open('/run?symbols=' + encodeURIComponent(defaultSyms), '_blank');
+    window.open('/run', '_blank');
   });
 
   // Copy CSV / JSON
