@@ -23,11 +23,13 @@ export async function runEquityScreen(env: any, symbols: string[]) {
       const mdd1y = maxDrawdown(closes, 252);
       const mom12m2m = momentum(closes);
 
-      // Baseline filters
-      if (!(price > sma200)) continue;
-      if (!(sma200Slope > 0)) continue;
-      if (!(rsi14 >= config.thresholds.rsiMin && rsi14 <= config.thresholds.rsiMax)) continue;
-      if (!(mdd1y >= config.thresholds.maxDrawdown)) continue;
+      // Baseline checks
+      const baselinePass =
+        price > sma200 &&
+        sma200Slope > 0 &&
+        rsi14 >= config.thresholds.rsiMin &&
+        rsi14 <= config.thresholds.rsiMax &&
+        mdd1y >= config.thresholds.maxDrawdown;
 
       // Fundamentals (optional)
       const funda = await getFundamentals(env, symbol);
@@ -43,7 +45,7 @@ export async function runEquityScreen(env: any, symbols: string[]) {
         marginTrendOk: q.marginTrendOk,
       };
       const score = scoreCandidate(eq);
-      const pass = score >= config.thresholds.passScore;
+      const pass = baselinePass && score >= config.thresholds.passScore;
       out.push({ symbol, score, price, metrics: eq, pass });
     } catch (e) {
       // Skip symbol on errors
