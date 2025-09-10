@@ -23,12 +23,8 @@ export async function runEquityScreen(env: any, symbols: string[]) {
       const mdd1y = maxDrawdown(closes, 252);
       const mom12m2m = momentum(closes);
 
-      // Baseline filters
-      if (!(price > sma200)) continue;
-      if (!(sma200Slope > 0)) continue;
-      if (!(rsi14 >= config.thresholds.rsiMin && rsi14 <= config.thresholds.rsiMax)) continue;
-      if (!(mdd1y >= config.thresholds.maxDrawdown)) continue;
-
+      // Evaluate every symbol; technical thresholds are reflected in the score
+      // rather than acting as hard filters so all data reaches the UI.
       // Fundamentals (optional)
       const funda = await getFundamentals(env, symbol);
       const q = deriveQualityMetrics(funda);
