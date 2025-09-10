@@ -4,7 +4,7 @@ import { cachedGetJSON } from '../store/kvCache';
 export async function getDailyAdjusted(env: any, symbol: string) {
   const key = env.ALPHA_VANTAGE_KEY;
   if (!key) throw new Error('ALPHA_VANTAGE_KEY not set');
-  const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${symbol}&apikey=${key}&outputsize=compact`;
+  const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${symbol}&apikey=${key}&outputsize=full`;
   const cacheKey = `av:daily:${symbol}`;
   return cachedGetJSON(env.leapspicker, cacheKey, 24 * 60 * 60, async () => {
     const res = await fetch(url, { cf: { cacheTtl: 0 } });
