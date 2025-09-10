@@ -3,6 +3,17 @@ export function renderHTML(data: any) {
 
   const rows = results
     .map((r) => {
+      if (r.error) {
+        return `
+      <tr>
+        <td class="sym">
+          <div class="symbox">
+            <div class="ticker">${escapeHTML(r.symbol ?? "—")}</div>
+          </div>
+        </td>
+        <td colspan="7" class="rationale">${escapeHTML(r.error)}</td>
+      </tr>`;
+      }
       const m = r.metrics ?? {};
       const score = Number.isFinite(r.score) ? r.score : 0;
 

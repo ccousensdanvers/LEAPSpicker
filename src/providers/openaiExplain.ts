@@ -6,25 +6,34 @@
 
 type Result = {
   symbol: string;
-  score: number;
-  price: number;
-  metrics: any;
+  score?: number;
+  price?: number;
+  metrics?: any;
   options?: any;
   rationale?: string;
+  error?: string;
 };
 
 export async function explainWithGPT(env: any, results: Result[]): Promise<Result[]> {
   if (!env.OPENAI_API_KEY) {
-    return results.map((r) => ({
-      ...r,
-      rationale:
-        `Trend above long-term average with supportive momentum. ` +
-        `Volatility and drawdown appear manageable. Options liquidity assumed OK (stub). ` +
-        `Caution: verify IV rank and spreads before selecting LEAPS.`,
-    }));
+    return results.map((r) =>
+      r.error
+        ? r
+        : {
+            ...r,
+            rationale:
+              `Trend above long-term average with supportive momentum. ` +
+              `Volatility and drawdown appear manageable. Options liquidity assumed OK (stub). ` +
+              `Caution: verify IV rank and spreads before selecting LEAPS.`,
+          },
+    );
   }
   const explained: Result[] = [];
   for (const r of results) {
+    if (r.error) {
+      explained.push(r);
+      continue;
+    }
     try {
       const sys =
         "You are a buy-side analyst. Write a ~120-word, risk-aware rationale for a LEAPS entry. " +

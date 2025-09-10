@@ -9,8 +9,12 @@ export async function runEquityScreen(env: any, symbols: string[]) {
   const out: any[] = [];
   for (const symbol of symbols) {
     try {
-      const json = await getDailyAdjusted(env, symbol);
-      const closes = extractCloses(json);
+      const av = await getDailyAdjusted(env, symbol);
+      if (av.type === 'error') {
+        out.push({ symbol, error: av.message });
+        continue;
+      }
+      const closes = extractCloses(av.data);
       if (closes.length < 220) continue;
       const price = closes[closes.length - 1];
       const sma50 = sma(closes, 50)[closes.length - 1];
@@ -46,11 +50,12 @@ export async function runEquityScreen(env: any, symbols: string[]) {
       const pass = score >= config.thresholds.passScore;
       out.push({ symbol, score, price, metrics: eq, pass });
     } catch (e) {
-      // Skip symbol on errors
-      console.log(`equityScreen error for ${symbol}:`, (e as Error).message);
+      const msg = (e as Error).message;
+      console.log(`equityScreen error for ${symbol}:`, msg);
+      out.push({ symbol, error: msg });
     }
   }
   // Sort by score desc
-  out.sort((a, b) => b.score - a.score);
+  out.sort((a, b) => (b.score ?? -Infinity) - (a.score ?? -Infinity));
   return out;
 }

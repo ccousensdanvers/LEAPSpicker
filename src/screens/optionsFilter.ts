@@ -6,6 +6,10 @@ export async function optionsFeasibility(env: any, equityResults: any[]) {
   const provider = new StubOptionsProvider();
   const out: any[] = [];
   for (const r of equityResults) {
+    if (r.error) {
+      out.push(r);
+      continue;
+    }
     try {
       // In stub mode we don't actually fetch a chain; integrate real provider later.
       const checks = basicOptionsChecks([]);
@@ -16,6 +20,6 @@ export async function optionsFeasibility(env: any, equityResults: any[]) {
       out.push({ ...r, options: { ivRank: undefined, oiOk: true, spreadOk: true, targetDeltaOk: true } });
     }
   }
-  out.sort((a, b) => b.score - a.score);
+  out.sort((a, b) => (b.score ?? -Infinity) - (a.score ?? -Infinity));
   return out;
 }
