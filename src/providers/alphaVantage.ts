@@ -9,13 +9,23 @@ export async function getDailyAdjusted(env: any, symbol: string) {
     const res = await fetch(url, { cf: { cacheTtl: 0 } });
     if (!res.ok) throw new Error(`Alpha Vantage error ${res.status}`);
     const json = await res.json();
+    const ts = json['Time Series (Daily)'];
+    const errMsg = json['Note'] ?? json['Information'] ?? json['Error Message'];
+    if (!ts || errMsg) {
+      throw new Error(errMsg || 'Alpha Vantage response missing Time Series (Daily)');
+    }
     return json;
   });
 }
 
 export function extractCloses(avJson: any): number[] {
+  if (!avJson || typeof avJson !== 'object') {
+    throw new Error('Alpha Vantage data is undefined or invalid');
+  }
   const ts = avJson['Time Series (Daily)'];
-  if (!ts) return [];
+  if (!ts) {
+    throw new Error('Alpha Vantage data missing Time Series (Daily)');
+  }
   const rows = Object.entries(ts).map(([d, o]: any) => ({
     d,
     c: +o['5. adjusted close'],
