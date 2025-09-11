@@ -24,7 +24,7 @@ export function renderHTML(data: any) {
         <td>${pct(m.mdd1y)} ${badgeMDD(m.mdd1y)}</td>
         <td>${r?.options?.ivRank ?? "—"}</td>
         <td>${r.pass ? badge("PASS", "ok") : badge("WATCH", "warn")}</td>
-        <td class="rationale">${escapeHTML(r.rationale ?? "—")}</td>
+        <td class="rationale">${r.rationale ? escapeHTML(r.rationale) : badge('rationale pending…', 'warn')}</td>
       </tr>`;
     })
     .join("\n");

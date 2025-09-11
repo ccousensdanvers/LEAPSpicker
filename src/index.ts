@@ -17,7 +17,7 @@ export interface Env {
 }
 
 export default {
-  async fetch(req: Request, env: Env): Promise<Response> {
+  async fetch(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(req.url);
     if (url.pathname === '/') return new Response('ok');
     if (url.pathname === '/picks.json') {
@@ -35,10 +35,18 @@ export default {
           : getQueryParamList(url, 'symbols') ?? config.universe;
       const equity = await runEquityScreen(env, symbols);
       const afterOptions = await optionsFeasibility(env, equity);
-      const withExplainers = await explainWithGPT(env, afterOptions);
-      const stamped = { ts: new Date().toISOString(), results: withExplainers };
-      await saveRun(env, stamped);
-      return new Response(renderJSON(stamped), { headers: { 'content-type': 'application/json' } });
+      const ts = new Date().toISOString();
+      const partial = { ts, results: afterOptions };
+      await saveRun(env, partial);
+      ctx.waitUntil(
+        (async () => {
+          const withExplainers = await explainWithGPT(env, afterOptions);
+          await saveRun(env, { ts, results: withExplainers });
+        })(),
+      );
+      return new Response(renderJSON(partial), {
+        headers: { 'content-type': 'application/json' },
+      });
     }
     return new Response('Not found', { status: 404 });
   },
