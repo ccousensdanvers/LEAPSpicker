@@ -85,7 +85,6 @@ export function renderHTML(data: any) {
     .b-bad{background:rgba(239,68,68,.16);color:var(--bad);border-color:rgba(239,68,68,.25)}
     .rationale{max-width:520px}
     .footer{margin:16px 0;color:var(--muted);font-size:12px}
-    .hidden{display:none}
   </style>
 </head>
 <body>
@@ -164,18 +163,7 @@ export function renderHTML(data: any) {
     });
   });
 
-  // Filter
-  q.addEventListener('input', () => {
-    const term = q.value.trim().toUpperCase();
-    let visible = 0;
-    rows.forEach(row => {
-      const txt = row.textContent.toUpperCase();
-      const show = !term || txt.includes(term);
-      row.classList.toggle('hidden', !show);
-      if (show) visible++;
-    });
-    rc.textContent = String(visible);
-  });
+  // Filter removed – keep rows always visible
 
   // Theme toggle (persist in sessionStorage)
   const root = document.documentElement;
