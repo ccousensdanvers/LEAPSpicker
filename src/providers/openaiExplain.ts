@@ -1,4 +1,3 @@
-
 /**
  * Optional: use the OpenAI API to generate a concise, risk-aware rationale for each pick.
  * Falls back to a templated explanation if OPENAI_API_KEY is not set.
@@ -19,10 +18,7 @@ async function sleep(ms: number) {
 
 async function metricsHash(metrics: any): Promise<string> {
   const json = JSON.stringify(metrics);
-  const buf = await crypto.subtle.digest(
-    'SHA-256',
-    new TextEncoder().encode(json),
-  );
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(json));
   return Array.from(new Uint8Array(buf))
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
@@ -71,7 +67,7 @@ export async function explainWithGPT(env: any, results: Result[]): Promise<Resul
         `Caution: verify IV rank and spreads before selecting LEAPS.`,
     }));
   }
-  const limit = env.EXPLAIN_TOP_N ? parseInt(env.EXPLAIN_TOP_N, 10) : 10;
+  const limit = env.EXPLAIN_TOP_N ? Math.min(parseInt(env.EXPLAIN_TOP_N, 10), 5) : 5;
   const explained: Result[] = [];
   for (let i = 0; i < results.length; i++) {
     const r = results[i];
@@ -122,4 +118,3 @@ export async function explainWithGPT(env: any, results: Result[]): Promise<Resul
   }
   return explained;
 }
-
